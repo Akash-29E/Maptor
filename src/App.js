@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './App.css';
 
 const API = process.env.NODE_ENV === 'production'
-  ? 'https://render.onrender.com'
+  ? 'https://maptor.onrender.com'
   : 'http://localhost:5000';
 
 function App() {
