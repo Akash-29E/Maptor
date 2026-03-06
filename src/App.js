@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import './App.css';
 
-const API = 'http://localhost:5000';
+const API = process.env.NODE_ENV === 'production'
+  ? 'https://render.onrender.com'
+  : 'http://localhost:5000';
 
 function App() {
   const [start, setStart] = useState('');
