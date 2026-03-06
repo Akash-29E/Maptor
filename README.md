@@ -1,72 +1,85 @@
-# Maptor - React Application
+# Maptor
 
-A modern React-based application scaffolded with webpack and babel.
+Generate optimized multi-stop Google Maps routes from your browser. Paste Google Maps URLs as locations, choose your travel mode, and get a single shareable route link back.
 
-## Project Setup
+**Live:** [maptor.ca](https://maptor.ca)
 
-This project was initialized with `npm init` and configured with:
-- **React 19** - UI library
-- **Webpack** - Module bundler
-- **Babel** - JavaScript compiler
-- **webpack-dev-server** - Development server with hot reloading
+## Tech Stack
 
-## Installation
-
-Install project dependencies:
-
-```bash
-npm install
-```
-
-## Available Scripts
-
-### Development Server
-Start the development server at `http://localhost:3000`:
-
-```bash
-npm start
-```
-
-The application will automatically reload when you make changes.
-
-### Production Build
-Build the project for production:
-
-```bash
-npm run build
-```
-
-The optimized files will be output to the `dist/` directory.
+- **Frontend:** React 19, Webpack, Babel — deployed on GitHub Pages
+- **Backend:** Node.js, Express — deployed on Render
 
 ## Project Structure
 
 ```
-src/
-  ├── index.js       - React root entry point
-  ├── App.js         - Main App component
-  └── App.css        - App styles
+src/                  - React frontend
+  ├── index.js        - Entry point
+  ├── App.js          - Main component
+  └── App.css         - Styles
+server/               - Express backend
+  ├── index.js        - Server entry point
+  ├── routes/
+  │   └── route.js    - POST /api/route/generate
+  └── utils/
+      └── index.js    - URL unshortening & coordinate extraction
 public/
-  └── index.html     - HTML template
-webpack.config.js   - Webpack configuration
-.babelrc           - Babel configuration
-package.json       - Project metadata and dependencies
+  └── index.html      - HTML template
 ```
 
-## Getting Started
+## Local Development
 
-1. **Install dependencies**: `npm install`
-2. **Start development server**: `npm start`
-3. **Edit files** in the `src/` directory
-4. **Browser will auto-reload** with your changes
-5. **Build for production**: `npm run build`
+### 1. Install dependencies
+```bash
+npm install
+```
 
-## Features
+### 2. Start the backend
+```bash
+npm run server
+```
+Runs the Express server at `http://localhost:5000`.
 
-- Fast development with hot module reloading
-- Production-optimized builds
-- ES6+ and JSX support with Babel
-- CSS module support
-- Source maps for debugging
+### 3. Start the frontend
+```bash
+npm start
+```
+Runs the React app at `http://localhost:3000`.
+
+## API
+
+### `POST /api/route/generate`
+Generates a Google Maps multi-stop route link.
+
+**Body:**
+```json
+{
+  "locations": ["<google maps url>", "<google maps url>"],
+  "travelmode": "driving | walking | bicycling | transit"
+}
+```
+
+**Response:**
+```json
+{
+  "routeUrl": "https://www.google.com/maps/dir/..."
+}
+```
+
+### `GET /api/health`
+Returns `{ "status": "ok" }`.
+
+## Deployment
+
+### Frontend (GitHub Pages)
+```bash
+npm run deploy
+```
+Builds the app and publishes to the `gh-pages` branch.
+
+### Backend (Render)
+Push changes to GitHub. Render auto-deploys from the repo using:
+- **Build command:** `npm install`
+- **Start command:** `node server/index.js`
 
 ## License
 
