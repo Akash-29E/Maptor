@@ -65,17 +65,38 @@ body {
 
 .route-input {
   width: 100%;
+  box-sizing: border-box;
+}
+
+/* Native input fields */
+input.route-input {
   padding: 12px 16px;
   font-size: 1rem;
   border: 1px solid #ccc;
   border-radius: 8px;
-  box-sizing: border-box;
   outline: none;
   transition: border-color 0.2s;
 }
 
-.route-input:focus {
+input.route-input:focus {
   border-color: #282c34;
+}
+
+/* PlaceAutocompleteElement web component container */
+div.route-input {
+  color-scheme: light;
+  --gmp-color-surface: #ffffff;
+  --gmp-color-on-surface: #1a1a1a;
+  --gmp-color-on-surface-variant: #888888;
+  --gmp-color-primary: #282c34;
+  --gmp-color-outline: #cccccc;
+  --gmp-border-radius-container: 8px;
+  --gmp-font-family: "Raleway", sans-serif;
+}
+
+div.route-input gmp-place-autocomplete {
+  width: 100%;
+  color-scheme: light;
 }
 
 .field-label {

@@ -1,6 +1,8 @@
 const path = require('path');
+const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+require('dotenv').config();
 
 module.exports = {
   mode: 'development',
@@ -30,6 +32,9 @@ module.exports = {
     ],
   },
   plugins: [
+    new webpack.DefinePlugin({
+      'process.env.PLACES_API_KEY': JSON.stringify(process.env.PLACES_API_KEY || ''),
+    }),
     new HtmlWebpackPlugin({
       template: './public/index.html',
     }),

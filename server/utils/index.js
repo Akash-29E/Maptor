@@ -30,31 +30,104 @@ function extractCoordinates(longUrl) {
   return match ? { lat: parseFloat(match[1]), lng: parseFloat(match[2]) } : null;
 }
 
-// --- Generate a Google Maps route link from an array of short/long URLs ---
-async function generateRouteLink(locationUrls, travelmode = 'driving') {
+// --- Geocode a plain text address using Google Maps Geocoding API ---
+function geocodeAddress(address, apiKey) {
+  return new Promise((resolve, reject) => {
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
+    const req = https.get(url, (res) => {
+      let data = '';
+      res.on('data', chunk => { data += chunk; });
+      res.on('end', () => {
+        try {
+          const json = JSON.parse(data);
+          if (json.status === 'OK' && json.results.length > 0) {
+            const { lat, lng } = json.results[0].geometry.location;
+            resolve({ lat, lng });
+          } else {
+            reject(new Error(`Geocoding failed for "${address}": ${json.status}`));
+          }
+        } catch (e) {
+          reject(e);
+        }
+      });
+    });
+    req.on('error', reject);
+    req.setTimeout(5000, () => { req.destroy(); reject(new Error('Geocoding timeout')); });
+  });
+}
+
+// --- Haversine distance in km between two {lat, lng} points ---
+function haversine(a, b) {
+  const R = 6371;
+  const dLat = (b.lat - a.lat) * Math.PI / 180;
+  const dLng = (b.lng - a.lng) * Math.PI / 180;
+  const x = Math.sin(dLat / 2) ** 2 +
+    Math.cos(a.lat * Math.PI / 180) * Math.cos(b.lat * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
+}
+
+// --- Nearest-neighbour reorder of waypoints (start and end stay fixed) ---
+function nearestNeighbour(origin, waypoints, destination) {
+  if (waypoints.length <= 1) return waypoints;
+  const unvisited = [...waypoints];
+  const ordered = [];
+  let current = origin;
+  while (unvisited.length > 0) {
+    let nearest = null, nearestIdx = -1, minDist = Infinity;
+    unvisited.forEach((wp, i) => {
+      const d = haversine(current, wp.coords);
+      if (d < minDist) { minDist = d; nearest = wp; nearestIdx = i; }
+    });
+    ordered.push(nearest);
+    current = nearest.coords;
+    unvisited.splice(nearestIdx, 1);
+  }
+  return ordered;
+}
+
+const COORD_PATTERN = /^-?\d+(\.\d+)?,-?\d+(\.\d+)?$/;
+const URL_PATTERN = /^https?:\/\//i;
+
+// --- Resolve a location string to { label, coords } ---
+async function resolveLocation(loc, apiKey) {
+  const trimmed = loc.trim();
+  if (COORD_PATTERN.test(trimmed)) {
+    const [lat, lng] = trimmed.split(',').map(Number);
+    return { label: trimmed, coords: { lat, lng } };
+  }
+  if (URL_PATTERN.test(trimmed)) {
+    const longUrl = await unshortenURL(trimmed);
+    const c = extractCoordinates(longUrl);
+    if (!c) throw new Error(`Could not extract coordinates from URL: ${trimmed}`);
+    return { label: `${c.lat},${c.lng}`, coords: c };
+  }
+  // Plain text address — geocode it
+  const coords = await geocodeAddress(trimmed, apiKey);
+  return { label: encodeURIComponent(trimmed), coords };
+}
+
+// --- Generate an optimized Google Maps route link ---
+async function generateRouteLink(locationUrls, travelmode = 'driving', apiKey = '') {
   if (locationUrls.length < 2) {
     throw new Error('At least 2 locations are required to generate a route.');
   }
 
-  const longUrls = await Promise.all(locationUrls.map(url => unshortenURL(url)));
+  const resolved = await Promise.all(locationUrls.map(loc => resolveLocation(loc, apiKey)));
 
-  const coords = longUrls.map((url, i) => {
-    const c = extractCoordinates(url);
-    if (!c) throw new Error(`Could not extract coordinates from location ${i + 1}: ${url}`);
-    return `${c.lat},${c.lng}`;
-  });
+  const origin      = resolved[0];
+  const destination = resolved[resolved.length - 1];
+  const waypoints   = resolved.slice(1, -1);
 
-  const origin      = coords[0];
-  const destination = coords[coords.length - 1];
-  const waypoints   = coords.slice(1, -1);
+  // Reorder waypoints using nearest-neighbour only if coordinates are available
+  const optimized = nearestNeighbour(origin.coords, waypoints, destination.coords);
 
   let routeUrl = `https://www.google.com/maps/dir/?api=1` +
-    `&origin=${origin}` +
-    `&destination=${destination}` +
+    `&origin=${origin.label}` +
+    `&destination=${destination.label}` +
     `&travelmode=${travelmode}`;
 
-  if (waypoints.length > 0) {
-    routeUrl += `&waypoints=${waypoints.join('|')}`;
+  if (optimized.length > 0) {
+    routeUrl += `&waypoints=${optimized.map(w => w.label).join('|')}`;
   }
 
   return routeUrl;

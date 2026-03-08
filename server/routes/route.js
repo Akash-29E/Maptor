@@ -10,7 +10,7 @@ router.post('/generate', async (req, res) => {
     return res.status(400).json({ error: 'At least 2 locations are required.' });
   }
   try {
-    const routeUrl = await generateRouteLink(locations, travelmode);
+    const routeUrl = await generateRouteLink(locations, travelmode, process.env.PLACES_API_KEY || '');
     res.json({ routeUrl });
   } catch (err) {
     res.status(500).json({ error: err.message });
