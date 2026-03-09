@@ -1,9 +1,6 @@
 import React, { useEffect, useRef } from 'react';
-import { setOptions, importLibrary } from '@googlemaps/js-api-loader';
+import { importLibrary } from '@googlemaps/js-api-loader';
 
-setOptions({
-  key: process.env.PLACES_API_KEY || '',
-});
 
 function AddressInput({ className, placeholder, value, onChange, onPlaceSelect }) {
   const containerRef = useRef(null);

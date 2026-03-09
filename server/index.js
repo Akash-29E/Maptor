@@ -11,6 +11,10 @@ app.use(express.json());
 
 app.use('/api/route', routeRouter);
 
+app.get('/api/config', (req, res) => {
+  res.json({ mapsKey: process.env.PLACES_API_KEY || '' });
+});
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
 });

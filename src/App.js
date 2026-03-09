@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { setOptions } from '@googlemaps/js-api-loader';
 import './App.css';
 import AddressInput from './components/AddressInput';
 
@@ -12,6 +13,16 @@ function App() {
   const [stops, setStops] = useState([emptyLocation()]);
   const [end, setEnd] = useState(emptyLocation());
   const [travelMode, setTravelMode] = useState('Driving');
+  const [mapsReady, setMapsReady] = useState(false);
+
+  useEffect(() => {
+    fetch(`${API}/api/config`)
+      .then(r => r.json())
+      .then(({ mapsKey }) => {
+        setOptions({ key: mapsKey });
+        setMapsReady(true);
+      });
+  }, []);
 
   const addStop = () => setStops([...stops, { address: '', lat: null, lng: null }]);
   const removeStop = (index) => setStops(stops.filter((_, i) => i !== index));
@@ -55,22 +66,22 @@ function App() {
         <div className="route-form">
           <label className="field-label">
             Start point
-            <AddressInput className="route-input" placeholder="Starting point" value={start.address}
+            {mapsReady && <AddressInput className="route-input" placeholder="Starting point" value={start.address}
               onChange={v => setStart({ address: v, lat: null, lng: null })}
-              onPlaceSelect={coords => setStart(coords)} />
+              onPlaceSelect={coords => setStart(coords)} />}
           </label>
 
           {stops.map((stop, index) => (
             <div className="stop-row" key={index}>
               <label className="field-label">
                 Stop {index + 1}
-                <AddressInput
+                {mapsReady && <AddressInput
                   className="route-input"
                   placeholder={`Stop ${index + 1}`}
                   value={stop.address}
                   onChange={value => updateStop(index, value)}
                   onPlaceSelect={coords => updateStopCoords(index, coords)}
-                />
+                />}
               </label>
               {index === stops.length - 1 && (
                 <>
@@ -85,9 +96,9 @@ function App() {
 
           <label className="field-label">
             End point
-            <AddressInput className="route-input" placeholder="End point" value={end.address}
+            {mapsReady && <AddressInput className="route-input" placeholder="End point" value={end.address}
               onChange={v => setEnd({ address: v, lat: null, lng: null })}
-              onPlaceSelect={coords => setEnd(coords)} />
+              onPlaceSelect={coords => setEnd(coords)} />}
           </label>
 
           <div className="travel-mode-bar">
