@@ -7,6 +7,11 @@ const API = process.env.NODE_ENV === 'production'
   ? 'https://maptor.onrender.com'
   : 'http://localhost:5000';
 
+// Fetch and apply the Maps key exactly once at module load time
+const mapsReadyPromise = fetch(`${API}/api/config`)
+  .then(r => r.json())
+  .then(({ mapsKey }) => { setOptions({ key: mapsKey }); });
+
 function App() {
   const emptyLocation = () => ({ address: '', lat: null, lng: null });
   const [start, setStart] = useState(emptyLocation());
@@ -16,12 +21,11 @@ function App() {
   const [mapsReady, setMapsReady] = useState(false);
 
   useEffect(() => {
-    fetch(`${API}/api/config`)
-      .then(r => r.json())
-      .then(({ mapsKey }) => {
-        setOptions({ key: mapsKey });
-        setMapsReady(true);
-      });
+    let cancelled = false;
+    mapsReadyPromise.then(() => {
+      if (!cancelled) setMapsReady(true);
+    });
+    return () => { cancelled = true; };
   }, []);
 
   const addStop = () => setStops([...stops, { address: '', lat: null, lng: null }]);

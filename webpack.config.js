@@ -4,8 +4,10 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 require('dotenv').config();
 
-module.exports = {
-  mode: 'development',
+module.exports = (env, argv) => {
+  const mode = argv?.mode || 'development';
+  return {
+  mode,
   entry: './src/index.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -33,7 +35,7 @@ module.exports = {
   },
   plugins: [
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
+      'process.env.NODE_ENV': JSON.stringify(mode),
     }),
     new HtmlWebpackPlugin({
       template: './public/index.html',
@@ -45,4 +47,5 @@ module.exports = {
     }),
   ],
   devtool: 'source-map',
+  };
 };
