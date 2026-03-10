@@ -1,5 +1,5 @@
 * {
-  font-family: "Raleway", sans-serif;
+  font-family: "Work Sans", sans-serif;
 }
 
 body {
@@ -63,6 +63,42 @@ body {
   max-width: 480px;
 }
 
+.route-description {
+  display: none;
+}
+
+.intro {
+  width: 100%;
+  max-width: 480px;
+  margin-bottom: 28px;
+}
+
+.intro-title {
+  margin: 0 0 10px;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #282c34;
+}
+
+.intro-body {
+  margin: 0 0 12px;
+  font-size: 0.95rem;
+  color: #444;
+  line-height: 1.6;
+}
+
+.intro-steps {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 0.9rem;
+  color: #555;
+  line-height: 1.9;
+}
+
+.intro-steps li {
+  padding-left: 4px;
+}
+
 .route-input {
   width: 100%;
   box-sizing: border-box;
@@ -103,7 +139,7 @@ div.route-input gmp-place-autocomplete {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  font-size: 0.85rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #282c34;
 }
@@ -121,11 +157,11 @@ div.route-input gmp-place-autocomplete {
 .add-stop-btn {
   flex-shrink: 0;
   width: 38px;
-  height: 38px;
-  font-size: 1.4rem;
+  padding: 8px 0;
+  font-size: 2rem;
   line-height: 1;
   border: 1px solid #282c34;
-  border-radius: 8px;
+  border-radius: 4px;
   background: white;
   color: #282c34;
   cursor: pointer;
@@ -140,11 +176,11 @@ div.route-input gmp-place-autocomplete {
 .remove-stop-btn {
   flex-shrink: 0;
   width: 38px;
-  height: 38px;
-  font-size: 1.4rem;
+  padding: 11px 0;
+  font-size: 1.7rem;
   line-height: 1;
   border: 1px solid #c0392b;
-  border-radius: 8px;
+  border-radius: 4px;
   background: white;
   color: #c0392b;
   cursor: pointer;
@@ -166,7 +202,7 @@ div.route-input gmp-place-autocomplete {
 .travel-mode-btn {
   flex: 1;
   padding: 10px 0;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 600;
   border: none;
   border-right: 1px solid #ccc;
@@ -203,4 +239,70 @@ div.route-input gmp-place-autocomplete {
 
 .submit-btn:hover {
   opacity: 0.85;
+}
+
+.route-result {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  background: #f7f7f7;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.route-result-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #282c34;
+}
+
+.route-result-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.route-result-link {
+  flex: 1;
+  font-size: 0.78rem;
+  color: #1a73e8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-decoration: none;
+}
+
+.route-result-link:hover {
+  text-decoration: underline;
+}
+
+.route-result-btn {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-family: "Raleway", sans-serif;
+  border: 1px solid #282c34;
+  border-radius: 6px;
+  background: white;
+  color: #282c34;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+}
+
+.route-result-btn:hover {
+  background: #282c34;
+  color: white;
+}
+
+.route-result-open {
+  background: #282c34;
+  color: white;
+}
+
+.route-result-open:hover {
+  opacity: 0.85;
+  background: #282c34;
 }
