@@ -28,6 +28,37 @@ function AddressInput({ className, placeholder, value, onChange, onPlaceSelect }
       containerRef.current.appendChild(el);
       elementRef.current = el;
 
+      // Fix: PlaceAutocompleteElement programmatically calls blur() on its internal
+      // input when processing keystrokes, which resets the mobile keyboard mode.
+      // Suppress those internal blurs — only allow blur when the user taps outside.
+      requestAnimationFrame(() => {
+        const input = el.shadowRoot?.querySelector('input');
+        if (!input) return;
+
+        const realBlur = input.blur.bind(input);
+        let userLeftComponent = false;
+
+        const onOutsidePointer = (e) => {
+          if (!el.contains(e.target) && !el.shadowRoot?.contains(e.target)) {
+            userLeftComponent = true;
+          }
+        };
+        document.addEventListener('pointerdown', onOutsidePointer, true);
+
+        input.blur = function () {
+          if (userLeftComponent) {
+            userLeftComponent = false;
+            realBlur();
+          }
+          // Suppress internal/programmatic blurs that reset keyboard mode
+        };
+
+        el._cleanupFocusFix = () => {
+          document.removeEventListener('pointerdown', onOutsidePointer, true);
+          input.blur = realBlur;
+        };
+      });
+
       const handleSelect = async (e) => {
         const prediction = e.placePrediction;
         const address = prediction?.text?.toString() || prediction?.mainText?.toString() || '';
@@ -53,6 +84,7 @@ function AddressInput({ className, placeholder, value, onChange, onPlaceSelect }
     return () => {
       cancelled = true;
       if (elementRef.current) {
+        elementRef.current._cleanupFocusFix?.();
         elementRef.current.remove();
         elementRef.current = null;
       }
